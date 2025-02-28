@@ -1,0 +1,6 @@
+<h2>Child Progress</h2>
+<ul>
+    {% for entry in progress %}
+        <li>{{ entry.child.user.username }} - {{ entry.homework_task.subject }}: {{ entry.completed|yesno:"Completed,Not Completed" }}</li>
+    {% endfor %}
+</ul>
