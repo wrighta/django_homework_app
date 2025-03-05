@@ -3,7 +3,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.timezone import now
 from .models import DailyHomework, HomeworkTask, ChildProgress
 from .forms import DailyHomeworkForm, HomeworkTaskForm
-
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from .serializers import DailyHomeworkSerializer
 
 # ✅ Helper Functions
 def is_teacher(user):
@@ -40,7 +43,8 @@ def create_homework(request):
 @user_passes_test(is_child)
 def child_dashboard(request):
     child = request.user.child_profile  # Get child profile
-    today_homework = DailyHomework.objects.filter(date=now().date())
+   # today_homework = DailyHomework.objects.filter(date=now().date())
+    today_homework = DailyHomework.objects.filter(date=now().date(),teacher=child.teacher)
 
     if request.method == "POST":
         task_id = request.POST.get("task_id")
@@ -70,3 +74,13 @@ def parent_dashboard(request):
     children = request.user.children.all()  # Get linked children
     progress = ChildProgress.objects.filter(child__in=children)
     return render(request, "homework/parent_dashboard.html", {"progress": progress})
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def create_daily_homework_api(request):
+    serializer = DailyHomeworkSerializer(data=request.data)
+    if serializer.is_valid():
+        daily_hw = serializer.save(teacher=request.user)
+        return Response({'success': True, 'id': daily_hw.id})
+    return Response(serializer.errors, status=400)
