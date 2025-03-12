@@ -10,27 +10,27 @@ function AddChild() {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Optional: fetch existing parents for the dropdown
-  useEffect(() => {
-    fetchParents();
-  }, []);
+  // useEffect(() => {
+  //   fetchParents();
+  // }, []);
 
-  const fetchParents = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:8000/users/api/existing-parents/', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setExistingParents(data);
-      } else {
-        setErrorMsg('Failed to fetch existing parents.');
-      }
-    } catch (err) {
-      console.error(err);
-      setErrorMsg('Network error.');
-    }
-  };
+  // const fetchParents = async () => {
+  //   try {
+  //     const response = await fetch('http://127.0.0.1:8000/users/api/existing-parents/', {
+  //       method: 'GET',
+  //       credentials: 'include',
+  //     });
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setExistingParents(data);
+  //     } else {
+  //       setErrorMsg('Failed to fetch existing parents.');
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     setErrorMsg('Network error.');
+  //   }
+  // };
 
   // Submit to create child
   const handleCreateChild = async (e) => {

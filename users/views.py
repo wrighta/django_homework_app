@@ -42,26 +42,14 @@ def user_login_view(request):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-###### CREATE CHILD #######
+
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
-@transaction.atomic
 def create_child_view(request):
-    """
-    Create a new child user (role='child') for the logged-in teacher.
-    Optionally link to an existing parent or create a new parent user (role='parent').
-    Expected JSON:
-    {
-      "child_username": "...",
-      "child_password": "...",
-      "selected_parent": 123,  // optional, if linking to existing parent
-      "new_parent_username": "...", // optional, if creating new parent
-      "new_parent_password": "..."  // optional, if creating new parent
-    }
-    """
-    teacher = request.user
-   
+    # Hardcode the teacher ID
+    teacher_id = 1  # Replace with the actual teacher ID you want to hardcode
+
     data = request.data
+
     child_username = data.get("child_username")
     child_password = data.get("child_password")
     selected_parent_id = data.get("selected_parent")
@@ -93,7 +81,7 @@ def create_child_view(request):
             parent_user = User.objects.create(
                 username=new_parent_username,
                 role='parent',
-                password=make_password(new_parent_password)
+                password=new_parent_password
             )
         else:
             # No existing parent or new parent details provided
@@ -108,18 +96,17 @@ def create_child_view(request):
     child_user = User.objects.create(
         username=child_username,
         role='child',
-        password=make_password(child_password)
+        password=child_password
     )
 
     # 3) Create a Child model record to link them
     Child.objects.create(
         child_user=child_user,
-        teacher=teacher,     # logged in teacher
+        teacher=teacher_id,  # Hardcoded teacher ID
         parent=parent_user   # whichever parent we determined
     )
 
-    return Response({"message": "Child user created successfully."},
-                    status=status.HTTP_201_CREATED)
+    return Response({"message": "Child user created successfully."}, status=status.HTTP_201_CREATED)
 
 ###### GET EXISTING PARENTS #######
 @api_view(['GET'])
@@ -132,6 +119,8 @@ def existing_parents_view(request):
     parent_data = [{"id": parent.id, "username": parent.username} for parent in parents]
     return Response(parent_data, status=status.HTTP_200_OK)
 
+
+######### REGISTER TEACHER ############
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])  # Anyone can register
 def teacher_register_view(request):

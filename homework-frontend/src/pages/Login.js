@@ -43,7 +43,7 @@ function Login() {
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg('Network error.');
+      setErrorMsg('Network error in Login.js.');
     }
   };
 

@@ -12,8 +12,7 @@ function TeacherDashboard() {
 
   const fetchTeacherChildren = async () => {
     try {
-    
-      const response = await fetch('http://127.0.0.1:8000/users/api/teacher-children/', {
+        const response = await fetch('http://127.0.0.1:8000/users/api/teacher-children/', {
         method: 'GET',
         credentials: 'include',
       });
