@@ -12,8 +12,7 @@ function TeacherDashboard() {
 
   const fetchTeacherChildren = async () => {
     try {
-      // Example endpoint: "users/api/teacher-children/"
-      // Adjust this to match your actual URL in Django
+    
       const response = await fetch('http://127.0.0.1:8000/users/api/teacher-children/', {
         method: 'GET',
         credentials: 'include',

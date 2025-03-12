@@ -7,12 +7,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login
 from .serializers import TeacherRegistrationSerializer
 from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 
 from .models import Child
 from .serializers import ChildCreationSerializer
 
 User = get_user_model()
 
+###### USER LOGIN #######
 @csrf_exempt  # if you haven't set up proper CSRF for API endpoints
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -39,19 +41,87 @@ def user_login_view(request):
     else:
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
+###### CREATE CHILD #######
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
+@transaction.atomic
 def create_child_view(request):
     """
-    Create a child user and link them to the logged-in teacher and a parent.
+    Create a new child user (role='child') for the logged-in teacher.
+    Optionally link to an existing parent or create a new parent user (role='parent').
+    Expected JSON:
+    {
+      "child_username": "...",
+      "child_password": "...",
+      "selected_parent": 123,  // optional, if linking to existing parent
+      "new_parent_username": "...", // optional, if creating new parent
+      "new_parent_password": "..."  // optional, if creating new parent
+    }
     """
-    serializer = ChildCreationSerializer(data=request.data, context={'request': request})
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"message": "Child user created successfully."}, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    teacher = request.user
+   
+    data = request.data
+    child_username = data.get("child_username")
+    child_password = data.get("child_password")
+    selected_parent_id = data.get("selected_parent")
+    new_parent_username = data.get("new_parent_username")
+    new_parent_password = data.get("new_parent_password")
 
+    # Validate child fields
+    if not child_username or not child_password:
+        return Response({"error": "Child username and password are required."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    # 1) Determine the parent
+    parent_user = None
+    if selected_parent_id:
+        # Link to existing parent
+        try:
+            parent_user = User.objects.get(id=selected_parent_id, role='parent')
+        except User.DoesNotExist:
+            return Response({"error": "Parent not found or invalid role."},
+                            status=status.HTTP_400_BAD_REQUEST)
+    else:
+        # Possibly create a new parent
+        if new_parent_username and new_parent_password:
+            # Check if username is taken
+            if User.objects.filter(username=new_parent_username).exists():
+                return Response({"error": "Parent username is already in use."},
+                                status=status.HTTP_400_BAD_REQUEST)
+            # Create parent user
+            parent_user = User.objects.create(
+                username=new_parent_username,
+                role='parent',
+                password=make_password(new_parent_password)
+            )
+        else:
+            # No existing parent or new parent details provided
+            return Response({"error": "Either select an existing parent or provide new parent credentials."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    # 2) Create the child user
+    if User.objects.filter(username=child_username).exists():
+        return Response({"error": "Child username is already in use."},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    child_user = User.objects.create(
+        username=child_username,
+        role='child',
+        password=make_password(child_password)
+    )
+
+    # 3) Create a Child model record to link them
+    Child.objects.create(
+        child_user=child_user,
+        teacher=teacher,     # logged in teacher
+        parent=parent_user   # whichever parent we determined
+    )
+
+    return Response({"message": "Child user created successfully."},
+                    status=status.HTTP_201_CREATED)
+
+###### GET EXISTING PARENTS #######
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def existing_parents_view(request):

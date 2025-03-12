@@ -5,6 +5,11 @@ from .models import Child
 User = get_user_model()
 
 
+class ParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']  # or 'email', etc.
+
 class ChildCreationSerializer(serializers.ModelSerializer):
     child_username = serializers.CharField(write_only=True)
     child_password = serializers.CharField(write_only=True)

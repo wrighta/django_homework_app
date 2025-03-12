@@ -3,7 +3,7 @@ import LandingPage from './pages/LandingPage';
 import RegisterTeacher from './pages/RegisterTeacher';
 import Login from './pages/Login';
 import TeacherDashboard from './pages/TeacherDashboard';
-// other imports...
+import AddChild from './pages/AddChild';// other imports...
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/register-teacher" element={<RegisterTeacher />} />
         <Route path="/login" element={<Login />} />
-   
+        <Route path="/add-child" element={<AddChild />} />
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
   
       </Routes>
