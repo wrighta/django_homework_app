@@ -6,12 +6,38 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login
 from .serializers import TeacherRegistrationSerializer
-
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Child
 from .serializers import ChildCreationSerializer
 
 User = get_user_model()
+
+@csrf_exempt  # if you haven't set up proper CSRF for API endpoints
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def user_login_view(request):
+    """
+    Log in a user (teacher, parent, child) with username/password.
+    Return their role on success.
+    """
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    if not username or not password:
+        return Response({'error': 'Username and password required.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        # Session-based login
+        login(request, user)
+        return Response({
+            'message': 'Login successful',
+            'role': user.role  # e.g. "teacher", "parent", "child"
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])

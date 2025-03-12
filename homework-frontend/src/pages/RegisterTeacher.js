@@ -18,8 +18,6 @@ function RegisterTeacher() {
         headers: {
           'Content-Type': 'application/json',
         },
-        // 'credentials: "include"' ensures cookies (the session cookie)
-        // are included in the request, so Django can set a session if it wants.
         credentials: 'include',
         body: JSON.stringify({
           username,
@@ -29,9 +27,9 @@ function RegisterTeacher() {
       });
 
       if (response.ok) {
-        // If the response is 201 or 200, it means success
-        // The user is now logged in (session cookie is set)
-        // We can redirect them to the teacher dashboard
+        // If the response is 201 or 200, it means success.
+        // The user is now logged in (session cookie set).
+        // We can redirect them to the Teacher Dashboard.
         window.location.href = '/teacher-dashboard';
       } else {
         // If there's an error, parse the JSON and display it
@@ -45,41 +43,45 @@ function RegisterTeacher() {
   };
 
   return (
-    <div>
-      <h2>Register as a Teacher</h2>
-      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
+    <div className="container mt-5" style={{ maxWidth: '600px' }}>
+      <h2 className="mb-4">Register as a Teacher</h2>
+      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
+        <div className="mb-3">
+          <label className="form-label">Username:</label>
           <input
             type="text"
+            className="form-control"
             value={username}
             onChange={e => setUsername(e.target.value)}
             required
           />
         </div>
 
-        <div>
-          <label>Email:</label>
+        <div className="mb-3">
+          <label className="form-label">Email:</label>
           <input
             type="email"
+            className="form-control"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
           />
         </div>
 
-        <div>
-          <label>Password:</label>
+        <div className="mb-3">
+          <label className="form-label">Password:</label>
           <input
             type="password"
+            className="form-control"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
           />
         </div>
 
-        <button type="submit">Register</button>
+        <button type="submit" className="btn btn-primary">Register</button>
       </form>
     </div>
   );

@@ -12,8 +12,9 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/register-teacher" element={<RegisterTeacher />} />
         <Route path="/login" element={<Login />} />
+   
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-     
+  
       </Routes>
     </Router>
   );
