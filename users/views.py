@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate, login
 from .serializers import TeacherRegistrationSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
-
 from .models import Child
 from .serializers import ChildCreationSerializer
 
@@ -42,11 +41,13 @@ def user_login_view(request):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-
+@csrf_exempt  # if you haven't set up proper CSRF for API endpoints
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def create_child_view(request):
     # Hardcode the teacher ID
-    teacher_id = 1  # Replace with the actual teacher ID you want to hardcode
+    teacher_id = 6  # Replace with the actual teacher ID you want to hardcode
+
 
     data = request.data
 
