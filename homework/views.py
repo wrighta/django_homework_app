@@ -55,17 +55,7 @@ def create_homework(request):
         "homework_form": homework_form,
         "task_formset": task_formset,
     })
-# def create_homework(request):
-#     if request.method == "POST":
-#         form = DailyHomeworkForm(request.POST)
-#         if form.is_valid():
-#             homework = form.save(commit=False)
-#             homework.teacher = request.user  # Assign logged-in teacher
-#             homework.save()
-#             return redirect("teacher_dashboard")
-#     else:
-#         form = DailyHomeworkForm()
-#     return render(request, "homework/create_homework.html", {"form": form})
+
 
 @login_required
 @user_passes_test(is_teacher)

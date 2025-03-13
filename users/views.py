@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 from .serializers import TeacherRegistrationSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
@@ -13,33 +14,68 @@ from .serializers import ChildCreationSerializer
 
 User = get_user_model()
 
-###### USER LOGIN #######
+########## USER LOGIN ###########
 @csrf_exempt  # if you haven't set up proper CSRF for API endpoints
-@api_view(['POST'])
+@api_view(['GET','POST'])
 @permission_classes([permissions.AllowAny])
 def user_login_view(request):
     """
     Log in a user (teacher, parent, child) with username/password.
     Return their role on success.
     """
-    username = request.data.get('username')
-    password = request.data.get('password')
+    
+    if request.method == 'GET':
+        form = AuthenticationForm()
+        return render(request, 'registration/login.html', {'form': form})
+    
+    elif request.method == 'POST':
+        username = request.data.get('username')
+        password = request.data.get('password')
 
-    if not username or not password:
-        return Response({'error': 'Username and password required.'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        if not username or not password:
+            return Response({'error': 'Username and password required.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        # Session-based login
-        login(request, user)
-        return Response({
-            'message': 'Login successful',
-            'role': user.role  # e.g. "teacher", "parent", "child"
-        }, status=status.HTTP_200_OK)
-    else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            # If teacher, go to teacher_dashboard; else to a different page
+            if is_teacher(user):
+                return redirect('teacher_dashboard')
 
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+def is_teacher(user):
+    return user.is_authenticated and user.role == "teacher"
+
+def is_child(user):
+    return user.is_authenticated and user.role == "child"
+
+def is_parent(user):
+    return user.is_authenticated and user.role == "parent"
+
+@login_required
+@user_passes_test(is_teacher)
+def teacher_dashboard(request):
+    return render(request, "homework/teacher_dashboard.html")
+
+@login_required
+@user_passes_test(is_child)
+def child_dashboard(request):
+    return render(request, "child_dashboard.html")
+
+@login_required
+@user_passes_test(is_parent)
+def parent_dashboard(request):
+    return render(request, "parent_dashboard.html")
+# Create your views here.
+
+####################################################
+##############REACT API FUNCTIONS ##################
+####################################################
 
 @csrf_exempt  # if you haven't set up proper CSRF for API endpoints
 @api_view(['POST'])
@@ -109,6 +145,7 @@ def create_child_view(request):
 
     return Response({"message": "Child user created successfully."}, status=status.HTTP_201_CREATED)
 
+
 ###### GET EXISTING PARENTS #######
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
@@ -156,28 +193,3 @@ def teacher_register_view(request):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-def is_teacher(user):
-    return user.is_authenticated and user.role == "teacher"
-
-def is_child(user):
-    return user.is_authenticated and user.role == "child"
-
-def is_parent(user):
-    return user.is_authenticated and user.role == "parent"
-
-@login_required
-@user_passes_test(is_teacher)
-def teacher_dashboard(request):
-    return render(request, "teacher_dashboard.html")
-
-@login_required
-@user_passes_test(is_child)
-def child_dashboard(request):
-    return render(request, "child_dashboard.html")
-
-@login_required
-@user_passes_test(is_parent)
-def parent_dashboard(request):
-    return render(request, "parent_dashboard.html")
-# Create your views here.
