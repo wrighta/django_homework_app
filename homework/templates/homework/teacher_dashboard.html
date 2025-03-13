@@ -1,0 +1,10 @@
+<h2>Teacher Dashboard</h2>
+<a href="{% url 'create_homework' %}">Create New Homework</a>
+<ul>
+  {% for hw in homeworks %}
+    <li>{{ hw.date }} – 
+      <a href="#">Edit Tasks</a>
+      <!-- Or maybe link to a separate edit view -->
+    </li>
+  {% endfor %}
+</ul>

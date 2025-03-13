@@ -1,6 +1,26 @@
+<!-- homework/templates/homework/create_homework.html -->
+
 <h2>Create Daily Homework</h2>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <!-- Render the DailyHomeworkForm -->
+    {{ homework_form.as_p }}
+
+    <h3>Tasks</h3>
+    <!-- Render the formset for tasks -->
+    {{ task_formset.management_form }}
+    <!-- The management_form is crucial for formset validation -->
+
+    {% for form in task_formset %}
+        <div style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
+            {{ form.as_p }}
+            <!-- If can_delete=True, show a checkbox to remove the task if needed -->
+            {% if form.can_delete %}
+                <label for="{{ form.prefix }}-DELETE">Delete:</label>
+                {{ form.DELETE }}
+            {% endif %}
+        </div>
+    {% endfor %}
+
     <button type="submit">Create Homework</button>
 </form>
