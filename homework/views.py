@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 from .serializers import DailyHomeworkSerializer
 
-# ✅ Helper Functions
+# Helper Functions
 def is_teacher(user):
     """Check if the user is a teacher"""
     return user.is_authenticated and user.role == "teacher"
@@ -22,8 +22,9 @@ def is_parent(user):
     """Check if the user is a parent"""
     return user.is_authenticated and user.role == "parent"
 
+######################TEACHER FUNCTIONALITY ##########################
 
-# ✅ Teacher: Create Homework
+# Teacher: Create Homework
 @login_required
 @user_passes_test(is_teacher)
 def create_homework(request):
@@ -64,6 +65,14 @@ def teacher_dashboard(request):
     homeworks = DailyHomework.objects.filter(teacher=request.user).order_by('-date')
     return render(request, 'homework/teacher_dashboard.html', {'homeworks': homeworks})
 
+def create_child_view(request):
+    # Handle the creation of a Child user 
+    # who belongs to the teacher (i.e. request.user if teacher).
+    # ...
+    return render(request, 'homework/create_child.html')
+
+
+######################CHILD FUNCTIONALITY ##########################
 
 #  Child: View & Complete Homework
 @login_required
@@ -94,6 +103,8 @@ def child_dashboard(request):
     })
 
 
+
+######################PARENT FUNCTIONALITY ##########################
 # Parent: View Child Progress
 @login_required
 @user_passes_test(is_parent)
@@ -103,6 +114,9 @@ def parent_dashboard(request):
     return render(request, "homework/parent_dashboard.html", {"progress": progress})
 
 
+
+######################REACT API FUNCTIONALITY ##########################
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def create_daily_homework_api(request):
@@ -111,3 +125,4 @@ def create_daily_homework_api(request):
         daily_hw = serializer.save(teacher=request.user)
         return Response({'success': True, 'id': daily_hw.id})
     return Response(serializer.errors, status=400)
+

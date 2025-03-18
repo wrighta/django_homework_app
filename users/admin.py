@@ -11,5 +11,4 @@ class CustomUserAdmin(UserAdmin):
 #     list_display = ('id', 'username', 'role', 'parent')
     
 admin.site.register(User, CustomUserAdmin)
-
 admin.site.register(Child)

@@ -1,11 +1,10 @@
-<!-- homework/templates/homework/create_homework.html -->
+{% extends 'homework/base.html' %}
 
-<h2>Create Daily Homework</h2>
-<form method="post">
+{% block content %}
+  <h2>Add Child to Your Class</h2>
+  <form method="POST">
     {% csrf_token %}
-    <!-- Render the DailyHomeworkForm -->
     {{ homework_form.as_p }}
-
     <h3>Tasks</h3>
     <!-- Render the formset for tasks -->
     {{ task_formset.management_form }}
@@ -22,5 +21,6 @@
         </div>
     {% endfor %}
 
-    <button type="submit">Create Homework</button>
-</form>
+    <button type="submit" class="btn btn-primary">Create Homework</button>
+  </form>
+{% endblock content %}
