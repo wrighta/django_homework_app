@@ -13,4 +13,12 @@ class Child(models.Model):
     child_user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="child_profile")
     #user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="child_profile")
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name="students", limit_choices_to={'role': 'teacher'})
-    parent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="children", limit_choices_to={'role': 'parent'})
+    # Parent not yet implemented, so child 
+    parent = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="children",
+        limit_choices_to={'role': 'parent'},
+        null=True,
+        blank=True  # <-- allow parent to be empty
+    )

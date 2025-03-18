@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.timezone import now
 from .models import DailyHomework, HomeworkTask, ChildProgress
-from .forms import DailyHomeworkForm, HomeworkTaskFormSet
+from .forms import DailyHomeworkForm, HomeworkTaskFormSet, ChildCreationForm
+
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -65,12 +66,51 @@ def teacher_dashboard(request):
     homeworks = DailyHomework.objects.filter(teacher=request.user).order_by('-date')
     return render(request, 'homework/teacher_dashboard.html', {'homeworks': homeworks})
 
-def create_child_view(request):
-    # Handle the creation of a Child user 
-    # who belongs to the teacher (i.e. request.user if teacher).
-    # ...
-    return render(request, 'homework/create_child.html')
+# homework/views.py
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login
+from .forms import ChildCreationForm
+from .models import Child
+
+User = get_user_model()
+
+def create_child_view(request):
+    if request.method == 'POST':
+        form = ChildCreationForm(request.POST)
+        if form.is_valid():
+            # 1) Create the User with role='child'
+            username = form.cleaned_data['username']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+
+            child_user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                email=email
+            )
+            child_user.role = 'child'
+            child_user.save()
+
+            # 2) Create the Child record, linking the teacher to this user
+            Child.objects.create(
+                child_user=child_user,
+                teacher=request.user,
+                # parent stays None if you want to skip it
+            )
+
+            # Optionally, log the child in or just redirect
+            # login(request, child_user)  # Usually not needed here
+            return redirect('teacher_dashboard')  # or some "success" page
+    else:
+        form = ChildCreationForm()
+
+    return render(request, 'homework/create_child.html', {'form': form})
 
 ######################CHILD FUNCTIONALITY ##########################
 

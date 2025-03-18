@@ -1,26 +1,40 @@
 {% extends 'homework/base.html' %}
 
 {% block content %}
-  <h2>Add Child to Your Class</h2>
+<div class="container mt-4">
+  <h2 class="mb-3">Add Child to Your Class</h2>
+
   <form method="POST">
     {% csrf_token %}
-    {{ homework_form.as_p }}
+    
+    <!-- Render the "homework_form" fields -->
+    <div class="mb-4">
+      {{ homework_form.as_p }}
+      <!-- "as_p" just puts each field in a <p> tag -->
+    </div>
+
     <h3>Tasks</h3>
-    <!-- Render the formset for tasks -->
+    <!-- You must include the management form for formsets -->
     {{ task_formset.management_form }}
-    <!-- The management_form is crucial for formset validation -->
 
     {% for form in task_formset %}
-        <div style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
-            {{ form.as_p }}
-            <!-- If can_delete=True, show a checkbox to remove the task if needed -->
-            {% if form.can_delete %}
-                <label for="{{ form.prefix }}-DELETE">Delete:</label>
-                {{ form.DELETE }}
-            {% endif %}
+      <!-- Wrap each task in a Bootstrap card for visual grouping -->
+      <div class="card mb-3">
+        <div class="card-body">
+          {{ form.as_p }}
+          {% if form.can_delete %}
+            <div class="form-check">
+              {{ form.DELETE }}
+              <label class="form-check-label" for="{{ form.prefix }}-DELETE">
+                Delete
+              </label>
+            </div>
+          {% endif %}
         </div>
+      </div>
     {% endfor %}
 
     <button type="submit" class="btn btn-primary">Create Homework</button>
   </form>
+</div>
 {% endblock content %}
