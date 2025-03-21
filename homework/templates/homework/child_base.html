@@ -1,0 +1,32 @@
+<!-- homework/templates/homework/child_base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Child Dashboard{% endblock title %}</title>
+  <!-- Bootstrap CSS (CDN) -->
+  <link 
+    rel="stylesheet" 
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  >
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Child Portal</a>
+    <!-- If you want a nav menu, you can add items here -->
+  </nav>
+
+  <div class="container mt-4">
+    {% block content %}
+    {% endblock content %}
+  </div>
+
+  <!-- Optional Bootstrap JS and dependencies -->
+  <script 
+    src="https://code.jquery.com/jquery-3.5.1.slim.min.js">
+  </script>
+  <script 
+    src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js">
+  </script>
+</body>
+</html>

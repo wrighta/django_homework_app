@@ -114,33 +114,123 @@ def create_child_view(request):
 
 ######################CHILD FUNCTIONALITY ##########################
 
-#  Child: View & Complete Homework
+# #  Child: View & Complete Homework
+# @login_required
+# @user_passes_test(is_child)
+# def child_dashboard(request):
+#     child = request.user.child_profile  # Get child profile
+#    # today_homework = DailyHomework.objects.filter(date=now().date())
+#     today_homework = DailyHomework.objects.filter(date=now().date(),teacher=child.teacher)
+
+#     if request.method == "POST":
+#         task_id = request.POST.get("task_id")
+#         task = HomeworkTask.objects.get(id=task_id)
+
+#         # Prevent duplicate progress entries
+#         progress, created = ChildProgress.objects.get_or_create(
+#             child=child, homework_task=task,
+#             defaults={"completed": True, "date": now().date()}
+#         )
+
+#         if not created:
+#             progress.completed = True  # Mark as completed
+#             progress.save()
+
+#     completed_tasks = ChildProgress.objects.filter(child=child)
+#     return render(request, "homework/child_dashboard.html", {
+#         "homework": today_homework,
+#         "completed_tasks": completed_tasks
+#     })
+
+# homework/views.py
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from datetime import date
+from .models import Child, DailyHomework, HomeworkTask, ChildProgress
+
 @login_required
-@user_passes_test(is_child)
 def child_dashboard(request):
-    child = request.user.child_profile  # Get child profile
-   # today_homework = DailyHomework.objects.filter(date=now().date())
-    today_homework = DailyHomework.objects.filter(date=now().date(),teacher=child.teacher)
+    # 1) Identify the Child object for the logged-in user.
+    #    (Assuming only users with role='child' can access this view.)
+    try:
+        child = Child.objects.get(child_user=request.user)
+    except Child.DoesNotExist:
+        # Handle the case if they're not a child or no Child record found
+        # Perhaps redirect or raise a 404
+        return redirect('home')  # or some other page
 
-    if request.method == "POST":
-        task_id = request.POST.get("task_id")
-        task = HomeworkTask.objects.get(id=task_id)
+    # 2) Find the teacher’s most recent DailyHomework (up to today).
+    #    teacher = child.teacher
+    #    daily_homework = teacher's daily homework with date <= today's date
+    today = date.today()
+    daily_homework = (DailyHomework.objects
+                      .filter(teacher=child.teacher, date__lte=today)
+                      .order_by('-date')
+                      .first())
+    
+    # Prepare placeholders for the "prev" and "next" date logic (not yet implemented).
+    prev_url = '#'  # later you can generate a real URL
+    next_url = '#'
+    
+    # 3) If there's no daily_homework found, we’ll just display a message.
+    if not daily_homework:
+        context = {
+            'daily_homework': None,
+            'prev_url': prev_url,
+            'next_url': next_url
+        }
+        return render(request, 'homework/child_dashboard.html', context)
+    
+    # 4) Get tasks for that homework
+    tasks = HomeworkTask.objects.filter(daily_homework=daily_homework)
+    
+    if request.method == 'POST':
+        # We have checkboxes named "completed_tasks" with values = task.id
+        completed_task_ids = request.POST.getlist('completed_tasks')
 
-        # Prevent duplicate progress entries
-        progress, created = ChildProgress.objects.get_or_create(
-            child=child, homework_task=task,
-            defaults={"completed": True, "date": now().date()}
-        )
-
-        if not created:
-            progress.completed = True  # Mark as completed
+        # For each task in the daily homework:
+        for task in tasks:
+            # Either update or create the ChildProgress entry
+            progress, created = ChildProgress.objects.get_or_create(
+                child=child,
+                homework_task=task,
+                date=daily_homework.date,
+                defaults={'completed': False}
+            )
+            # If the task’s ID is in the submitted list, mark it as completed,
+            # otherwise mark it as not completed
+            progress.completed = (str(task.id) in completed_task_ids)
             progress.save()
+        
+        # Optional: If all tasks are completed, redirect to "game page"
+        if len(completed_task_ids) == len(tasks):
+            return redirect('child_game_page')  # define this URL/view as needed
+        
+        # Else re-render the dashboard
+        return redirect('child_dashboard')
 
-    completed_tasks = ChildProgress.objects.filter(child=child)
-    return render(request, "homework/child_dashboard.html", {
-        "homework": today_homework,
-        "completed_tasks": completed_tasks
-    })
+    # 5) On GET, build a progress_list for the template
+    progress_list = []
+    for task in tasks:
+        # Find an existing progress record if any
+        progress = ChildProgress.objects.filter(
+            child=child,
+            homework_task=task,
+            date=daily_homework.date
+        ).first()
+        progress_list.append({
+            'task': task,
+            'completed': progress.completed if progress else False
+        })
+    
+    context = {
+        'daily_homework': daily_homework,
+        'progress_list': progress_list,
+        'prev_url': prev_url,
+        'next_url': next_url
+    }
+    return render(request, 'homework/child_dashboard.html', context)
 
 
 

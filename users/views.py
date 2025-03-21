@@ -42,6 +42,8 @@ def user_login_view(request):
             # If teacher, go to teacher_dashboard; else to a different page
             if is_teacher(user):
                 return redirect('teacher_dashboard')
+            elif is_child(user):
+                return redirect('child_dashboard')
 
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
