@@ -17,7 +17,7 @@
 {% if daily_homework %}
   <h5>Homework for {{ daily_homework.date }}</h5>
 
-  <form method="POST" class="mt-3">
+  <form id="homework-form" method="POST" class="mt-3">
     {% csrf_token %}
     <table class="table table-bordered">
       <thead>
@@ -38,11 +38,13 @@
             <td class="text-center">
               <!-- We'll store 'task_id' so we know which task this checkbox belongs to -->
               <input 
-                type="checkbox" 
-                name="completed_tasks" 
-                value="{{ progress_item.task.id }}"
-                {% if progress_item.completed %}checked{% endif %}
-              >
+              type="checkbox" 
+              name="completed_tasks" 
+              value="{{ progress_item.task.id }}"
+              class="task-checkbox"
+              {% if progress_item.completed %}checked{% endif %}
+            />
+            
             </td>
           </tr>
         {% endfor %}
@@ -55,4 +57,33 @@
     No homework found for today or earlier.
   </div>
 {% endif %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('homework-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      const checkboxes = document.querySelectorAll('.task-checkbox');
+      const totalTasks = checkboxes.length;
+      const checkedTasks = Array.from(checkboxes).filter(cb => cb.checked).length;
+
+      e.preventDefault(); // Stop the form from submitting immediately
+
+      if (checkedTasks === totalTasks && totalTasks > 0) {
+        // All tasks completed
+        alert("Well done! You can now enter the site.");
+        form.submit();  // Submit the form after alert
+      } else if (checkedTasks > 0) {
+        // Some tasks completed
+        alert("Good job! Now finish your homework so you can enter the site.");
+        // Stay on dashboard: do NOT submit form
+      } else {
+        // No tasks completed
+        alert("Please start your homework before submitting.");
+        // Stay on dashboard: do NOT submit form
+      }
+    });
+  });
+</script>
+
 {% endblock content %}

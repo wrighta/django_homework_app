@@ -2,19 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login | Homework Hub</title>
+    <title>Register as a Teacher | Homework Hub</title>
     <style>
-        body {
+        html, body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #f0f4ff,rgb(207, 208, 212));
+            background: linear-gradient(to right, #f0f4ff, rgb(207, 208, 212));
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+            overflow: auto;
         }
 
-        .login-container {
+        .register-container {
             background-color: white;
             padding: 2.5rem 3rem;
             border-radius: 1rem;
@@ -24,9 +27,9 @@
             text-align: center;
         }
 
-        .login-container h2 {
+        .register-container h2 {
             margin-bottom: 1.5rem;
-            colour: #333;
+            color: #333;
         }
 
         form {
@@ -43,7 +46,8 @@
         }
 
         input[type="text"],
-        input[type="password"] {
+        input[type="password"],
+        input[type="email"] {
             padding: 0.6rem;
             margin-top: 0.4rem;
             border: 1px solid #ccc;
@@ -51,11 +55,19 @@
             font-size: 1rem;
         }
 
+        ul {
+            text-align: left;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding-left: 1.2rem;
+            color: #555;
+        }
+
         button[type="submit"] {
             margin-top: 1.5rem;
             padding: 0.7rem;
             background-color: #4a90e2;
-            colour: white;
+            color: white;
             border: none;
             border-radius: 0.5rem;
             font-size: 1rem;
@@ -66,18 +78,31 @@
         button[type="submit"]:hover {
             background-color: #357ab8;
         }
+
+        .login-link {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .login-link a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login to Homework Hub</h2>
+    <div class="register-container">
+        <h2>Register as a Teacher</h2>
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Login</button>
+            <button type="submit">Register</button>
         </form>
-        <p>Are you a teacher? <a href="{% url 'register_teacher' %}">Register here</a></p>
-
+        <p class="login-link">Already have an account? <a href="{% url 'login' %}">Log in here</a></p>
     </div>
 </body>
 </html>

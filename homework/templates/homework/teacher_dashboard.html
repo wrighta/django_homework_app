@@ -6,19 +6,29 @@
 {% endblock title %}
 
 {% block content %}
-  <h2>Teacher Dashboard</h2>
-  
+  <h2>Welcome to your Teacher Dashboard</h2>
 
-  <ul class="list-group">
-    {% for hw in homeworks %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>{{ hw.date }}</span>
-        <span>
-          <!-- Maybe place a link to "View Homework Tasks" if you have such a URL -->
-          <a href="#" class="btn btn-sm btn-secondary">View Homework Tasks</a>
-        </span>
-      </li>
-    {% endfor %}
-  </ul>
-
+  {% if homeworks %}
+    <p>Here is a list of your assigned homework:</p>
+    <ul class="list-group">
+      {% for hw in homeworks %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ hw.date }}</span>
+          <span>
+            <a href="{% url 'homework_detail' hw.id %}" class="btn btn-sm btn-secondary">View Homework Tasks</a>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info mt-4">
+      <p><strong>Welcome to Homework Hub!</strong></p>
+      <p>It looks like you haven't created any homework yet.</p>
+      <ul>
+        <li>You can start by adding child users (your students).</li>
+        <li>Then create homework tasks for them to complete.</li>
+        <li>Children will see these tasks when they log in.</li>
+      </ul>
+    </div>
+  {% endif %}
 {% endblock content %}

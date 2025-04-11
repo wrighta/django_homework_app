@@ -1,0 +1,25 @@
+<!-- homework/templates/homework/homework_detail.html -->
+{% extends 'homework/base.html' %}
+
+{% block title %}
+  Homework for {{ homework.date }}
+{% endblock title %}
+
+{% block content %}
+  <h2>Homework for {{ homework.date }}</h2>
+
+  {% if tasks %}
+    <ul class="list-group">
+      {% for task in tasks %}
+        <li class="list-group-item">
+          <strong>{{ task.subject }}</strong><br>
+          {{ task.description }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tasks have been added for this date yet.</p>
+  {% endif %}
+
+  <a href="{% url 'teacher_dashboard' %}" class="btn btn-link mt-4">← Back to Dashboard</a>
+{% endblock content %}

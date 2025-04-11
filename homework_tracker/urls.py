@@ -17,9 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('homework/', include('homework.urls')),  # Include homework app URLs
     path('users/', include('users.urls')),  # Include users app URLs
-]
+ 
+ # This line makes the root URL show the login page - not working correctly, so I have commented it out
+ #path('', auth_views.LoginView.as_view(), name='login'),
+
+
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

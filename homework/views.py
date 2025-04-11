@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import login
 from django.urls import reverse
 from datetime import date
+import requests
 
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -74,7 +75,33 @@ def teacher_dashboard(request):
 
 
 
+
+def homework_detail(request, pk):
+    homework = get_object_or_404(DailyHomework, pk=pk)
+    tasks = homework.tasks.all()  # Adjust if your model relation is different
+    return render(request, 'homework/homework_detail.html', {'homework': homework, 'tasks': tasks})
+
+
+
 ######################CHILD FUNCTIONALITY ##########################
+
+# loads child game page - this page displays all the pokemon cards from an external API
+def child_game_page(request):
+    return render(request, 'homework/child_game_page.html')
+
+# When a child clicks a pokemon on the game page, it calls this function
+# this function then gets the details of that pokemon from the external API 
+# and passes it to the pokemon_detial
+def pokemon_detail(request, pokemon_id):
+    response = requests.get(f'https://pokeapi.co/api/v2/pokemon/{pokemon_id}/')
+    if response.status_code == 200:
+        pokemon_data = response.json()
+    else:
+        pokemon_data = None
+
+    return render(request, 'homework/pokemon_detail.html', {
+        'pokemon': pokemon_data
+    })
 
 def create_child_view(request):
     if request.method == 'POST':

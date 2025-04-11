@@ -6,14 +6,29 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
+from .forms import TeacherRegistrationForm
 from .serializers import TeacherRegistrationSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from .models import Child
 from .serializers import ChildCreationSerializer
+from django.contrib import messages
+
 
 User = get_user_model()
 
+########## TEACHER REGISTER - Only teachers can register online ###########
+def register_teacher(request):
+    if request.method == 'POST':
+        form = TeacherRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your teacher account has been created. You can now log in.')
+            return redirect('login')  # Make sure this matches your login URL name
+    else:
+        form = TeacherRegistrationForm()  # ← This was missing in your GET case!
+
+    return render(request, 'registration/register_teacher.html', {'form': form})
 ########## USER LOGIN ###########
 @csrf_exempt  # if you haven't set up proper CSRF for API endpoints
 @api_view(['GET','POST'])
@@ -44,7 +59,6 @@ def user_login_view(request):
                 return redirect('teacher_dashboard')
             elif is_child(user):
                 return redirect('child_dashboard')
-
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
