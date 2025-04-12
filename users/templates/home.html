@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">Homework Tracker</a>
+            <div class="d-flex">
+                <a class="btn btn-outline-primary me-2" href="{% url 'login' %}">Login</a>
+                <a class="btn btn-primary" href="{% url 'register' %}">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4">Welcome to the Homework Tracker</h1>
+            <p class="lead">A fun and easy way for teachers and pupils to stay on top of homework – with a surprise at the end!</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">What is Homework Tracker?</h5>
+                        <p class="card-text">
+                            Homework Tracker is an online platform designed to help teachers manage homework for their classes, 
+                            and motivate pupils with a playful reward system.
+                        </p>
+
+                        <h5 class="mt-4">How it works for Teachers</h5>
+                        <ul>
+                            <li>Register online as a teacher</li>
+                            <li>Create child accounts for your pupils</li>
+                            <li>Set and assign homework tasks to your class</li>
+                        </ul>
+
+                        <h5 class="mt-4">How it works for Pupils</h5>
+                        <ul>
+                            <li>Login with the details your teacher gives you</li>
+                            <li>See your assigned homework clearly in one place</li>
+                            <li>Tick off homework as you complete it</li>
+                            <li><strong>Once all homework is done… unlock and play a Pokémon mini-game!</strong></li>
+                        </ul>
+
+                        <p class="mt-4">
+                            It's simple, motivating, and helps build good habits – whether you're managing a classroom or doing your best as a pupil.
+                        </p>
+
+                        <div class="text-center mt-4">
+                            <a href="{% url 'register' %}" class="btn btn-success me-2">Teacher Registration</a>
+                            <a href="{% url 'login' %}" class="btn btn-outline-secondary">Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-muted text-center py-3 mt-5 border-top">
+        <small>&copy; {{ year|default:"2025" }} Homework Tracker. Built with Django & React.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

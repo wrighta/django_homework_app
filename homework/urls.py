@@ -14,5 +14,6 @@ urlpatterns = [
     path('parent_dashboard/', views.parent_dashboard, name='parent_dashboard'),  # Parent's dashboard
     path('child_game_page/', views.child_game_page,name='child_game_page'),
     path('pokemon/<int:pokemon_id>/', views.pokemon_detail, name='pokemon_detail'),
+  
 ]
 

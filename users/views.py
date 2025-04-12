@@ -17,6 +17,10 @@ from django.contrib import messages
 
 User = get_user_model()
 
+########### HOME PAGE ############
+def  home_view(request):
+    return render(request, 'templates/home.html')
+
 ########## TEACHER REGISTER - Only teachers can register online ###########
 def register_teacher(request):
     if request.method == 'POST':
